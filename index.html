@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TG • LIVE — Telegram orqali jonli chat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E1116;
+    --surface:#161B22;
+    --surface-2:#1E2530;
+    --border: rgba(255,255,255,0.07);
+    --accent-a:#2AABEE;
+    --accent-b:#1C64F2;
+    --text:#EAF1F8;
+    --muted:#8AA0B4;
+    --success:#3DDC97;
+    --danger:#F76E6E;
+    --radius:18px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(42,171,238,0.14), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(28,100,242,0.10), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit;}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;
+    max-width:960px;margin:0 auto;padding:24px 20px 0;
+  }
+  .brand{
+    display:flex;align-items:center;gap:10px;
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:17px;letter-spacing:0.2px;
+  }
+  .brand .dot{
+    width:9px;height:9px;border-radius:50%;
+    background:var(--success);
+    box-shadow:0 0 0 0 rgba(61,220,151,.6);
+    animation:pulse 2.2s infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(61,220,151,.55);}
+    70%{box-shadow:0 0 0 8px rgba(61,220,151,0);}
+    100%{box-shadow:0 0 0 0 rgba(61,220,151,0);}
+  }
+  #tg-login-wrap{min-height:40px;display:flex;align-items:center;}
+
+  /* ---------- hero ---------- */
+  .hero{
+    max-width:720px;margin:0 auto;padding:56px 20px 28px;text-align:center;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent-a);margin-bottom:14px;
+  }
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:clamp(28px,4.6vw,42px);
+    line-height:1.12;margin:0 0 14px;font-weight:700;
+    letter-spacing:-0.5px;
+  }
+  h1 span{
+    background:linear-gradient(135deg,var(--accent-a),var(--accent-b));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero p{color:var(--muted);font-size:15.5px;line-height:1.6;max-width:520px;margin:0 auto;}
+
+  /* ---------- disclosure banner ---------- */
+  .notice{
+    max-width:640px;margin:22px auto 0;padding:12px 16px;
+    background:rgba(247,110,110,0.08);
+    border:1px solid rgba(247,110,110,0.25);
+    border-radius:12px;font-size:12.5px;color:#F3AFAF;line-height:1.5;
+    display:flex;gap:10px;align-items:flex-start;
+  }
+  .notice b{color:#fff;}
+
+  /* ---------- chat card ---------- */
+  .chat-shell{max-width:640px;margin:28px auto 60px;padding:0 20px;}
+  .chat-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+    box-shadow:0 30px 60px -25px rgba(0,0,0,0.6);
+  }
+  .chat-head{
+    display:flex;align-items:center;gap:12px;
+    padding:16px 18px;border-bottom:1px solid var(--border);
+    background:var(--surface-2);
+  }
+  .avatar{
+    width:38px;height:38px;border-radius:50%;
+    background:linear-gradient(135deg,var(--accent-a),var(--accent-b));
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:15px;color:#fff;
+    flex-shrink:0;position:relative;
+  }
+  .avatar::after{
+    content:'';position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;
+    border-radius:50%;background:var(--success);border:2px solid var(--surface-2);
+  }
+  .chat-head-meta{flex:1;min-width:0;}
+  .chat-head-meta .name{font-weight:600;font-size:14.5px;}
+  .chat-head-meta .status{font-size:12px;color:var(--muted);}
+  .chat-head-meta .status.live{color:var(--success);}
+
+  .messages{
+    height:420px;overflow-y:auto;padding:18px;
+    display:flex;flex-direction:column;gap:10px;
+    scroll-behavior:smooth;
+  }
+  .messages::-webkit-scrollbar{width:6px;}
+  .messages::-webkit-scrollbar-thumb{background:var(--surface-2);border-radius:6px;}
+
+  .empty-state{
+    margin:auto;text-align:center;color:var(--muted);font-size:13.5px;
+    padding:20px;
+  }
+
+  .bubble{
+    max-width:78%;padding:10px 13px;border-radius:14px;font-size:14px;line-height:1.45;
+    position:relative;word-wrap:break-word;
+    animation:rise .25s ease;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .bubble .meta{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;margin-top:5px;opacity:.65;}
+
+  .bubble.in{
+    align-self:flex-start;
+    background:var(--surface-2);
+    border-bottom-left-radius:4px;
+    color:var(--text);
+  }
+  .bubble.out{
+    align-self:flex-end;
+    background:linear-gradient(135deg,var(--accent-a),var(--accent-b));
+    border-bottom-right-radius:4px;
+    color:#fff;
+  }
+  .bubble .tag{
+    display:block;font-family:'JetBrains Mono',monospace;font-size:10px;
+    text-transform:uppercase;letter-spacing:.06em;opacity:.7;margin-bottom:3px;
+  }
+
+  .typing{
+    align-self:flex-start;display:flex;gap:4px;padding:10px 13px;
+    background:var(--surface-2);border-radius:14px;border-bottom-left-radius:4px;
+    width:fit-content;
+  }
+  .typing span{width:5px;height:5px;border-radius:50%;background:var(--muted);animation:blink 1.2s infinite;}
+  .typing span:nth-child(2){animation-delay:.2s;}
+  .typing span:nth-child(3){animation-delay:.4s;}
+  @keyframes blink{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+
+  .input-row{
+    display:flex;gap:8px;padding:14px;border-top:1px solid var(--border);
+    background:var(--surface-2);
+  }
+  .input-row input{
+    flex:1;background:var(--surface);border:1px solid var(--border);
+    border-radius:12px;padding:11px 14px;color:var(--text);font-size:14px;
+    outline:none;font-family:'Inter',sans-serif;
+  }
+  .input-row input::placeholder{color:var(--muted);}
+  .input-row input:focus{border-color:var(--accent-a);}
+  .input-row button{
+    background:linear-gradient(135deg,var(--accent-a),var(--accent-b));
+    border:none;color:#fff;font-weight:600;font-size:14px;
+    padding:0 20px;border-radius:12px;cursor:pointer;
+    transition:opacity .15s ease, transform .15s ease;
+    font-family:'Inter',sans-serif;
+  }
+  .input-row button:hover{opacity:.92;}
+  .input-row button:active{transform:scale(.97);}
+  .input-row button:disabled{opacity:.5;cursor:not-allowed;}
+
+  .foot-note{
+    text-align:center;color:var(--muted);font-size:11.5px;margin-top:14px;
+    font-family:'JetBrains Mono',monospace;
+  }
+
+  :focus-visible{outline:2px solid var(--accent-a);outline-offset:2px;}
+
+  @media (max-width:480px){
+    .messages{height:360px;}
+    .topbar{padding-top:18px;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <div class="brand"><span class="dot"></span> TG • LIVE</div>
+    <div id="tg-login-wrap"></div>
+  </div>
+
+  <div class="hero">
+    <div class="eyebrow">Telegram bilan bevosita ulanish</div>
+    <h1>Sayt orqali yozing, <span>Telegram’da</span> javob oling</h1>
+    <p>Xabaringizni shu yerga yozing — u to‘g‘ridan-to‘g‘ri Telegram’ga yetib boradi.
+       Javob kelganda, u shu chat oynasida avtomatik ko‘rinadi.</p>
+  </div>
+
+  <div class="notice">
+    <span>⚠️</span>
+    <div><b>Ochiqlik haqida ogohlantirish:</b> bu sahifa statik (GitHub Pages) bo‘lgani uchun,
+    bu yerdagi suhbat barcha tashrifchilar uchun umumiy ko‘rinishda ishlaydi — maxfiy yoki
+    shaxsiy ma’lumot yozmang.</div>
+  </div>
+
+  <div class="chat-shell">
+    <div class="chat-card">
+      <div class="chat-head">
+        <div class="avatar" id="avatarInitial">?</div>
+        <div class="chat-head-meta">
+          <div class="name">Qo'llab-quvvatlash</div>
+          <div class="status live" id="statusLine">● onlayn — javob kuting</div>
+        </div>
+      </div>
+
+      <div class="messages" id="messages">
+        <div class="empty-state" id="emptyState">Hali xabar yo‘q. Pastdan birinchi xabaringizni yozing 👇</div>
+      </div>
+
+      <div class="input-row">
+        <input id="msgInput" type="text" placeholder="Xabar yozing..." maxlength="1000" autocomplete="off">
+        <button id="sendBtn">Yuborish</button>
+      </div>
+    </div>
+    <div class="foot-note">powered by Telegram Bot API</div>
+  </div>
+
+<script>
+/* =========================================================
+   SOZLAMALAR — DIQQAT!
+   Bu token brauzerda OCHIQ ko'rinadi (View Source / Network
+   orqali). Bu faqat shaxsiy/demo loyihalar uchun mos.
+   ========================================================= */
+const CONFIG = {
+  BOT_TOKEN: "1005771409:AAESDJU0T7drC-Pd84-BiGxe6wDKEzCxAsY",
+  OWNER_CHAT_ID: 660086073,
+  POLL_INTERVAL_MS: 3500
+};
+
+const API = `https://api.telegram.org/bot${CONFIG.BOT_TOKEN}`;
+const messagesEl = document.getElementById('messages');
+const emptyState = document.getElementById('emptyState');
+const input = document.getElementById('msgInput');
+const sendBtn = document.getElementById('sendBtn');
+const statusLine = document.getElementById('statusLine');
+const avatarInitial = document.getElementById('avatarInitial');
+
+const seenUpdateIds = new Set();
+let guestName = localStorage.getItem('tglive_name') || null;
+
+/* ---------- guest identity ---------- */
+function ensureGuestName(){
+  if(guestName) return guestName;
+  let n = prompt("Ismingizni kiriting (chatda shu nom ko'rinadi):", "Mehmon");
+  if(!n || !n.trim()) n = "Mehmon";
+  guestName = n.trim().slice(0,40);
+  localStorage.setItem('tglive_name', guestName);
+  avatarInitial.textContent = guestName[0].toUpperCase();
+  return guestName;
+}
+avatarInitial.textContent = (guestName ? guestName[0] : "?").toUpperCase();
+
+/* ---------- rendering ---------- */
+function addBubble({side, text, tag, time}){
+  emptyState.style.display = 'none';
+  const b = document.createElement('div');
+  b.className = 'bubble ' + side;
+  const tagHtml = tag ? `<span class="tag">${tag}</span>` : '';
+  b.innerHTML = `${tagHtml}${escapeHtml(text)}<span class="meta">${time}</span>`;
+  messagesEl.appendChild(b);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function fmtTime(ts){
+  const d = new Date(ts*1000);
+  return d.toLocaleTimeString('uz-UZ', {hour:'2-digit', minute:'2-digit'});
+}
+
+/* ---------- sending ---------- */
+async function sendMessage(){
+  const text = input.value.trim();
+  if(!text) return;
+  const name = ensureGuestName();
+  sendBtn.disabled = true;
+
+  addBubble({side:'out', text, tag: name, time: fmtTime(Date.now()/1000)});
+  input.value = '';
+
+  try{
+    await fetch(`${API}/sendMessage`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        chat_id: CONFIG.OWNER_CHAT_ID,
+        text: `💬 ${name}:\n${text}`
+      })
+    });
+  }catch(e){
+    statusLine.textContent = '● ulanishda xatolik';
+    statusLine.classList.remove('live');
+  }finally{
+    sendBtn.disabled = false;
+  }
+}
+sendBtn.addEventListener('click', sendMessage);
+input.addEventListener('keydown', e => { if(e.key === 'Enter') sendMessage(); });
+
+/* ---------- polling getUpdates ---------- */
+async function poll(){
+  try{
+    const res = await fetch(`${API}/getUpdates?timeout=0&limit=100`);
+    const data = await res.json();
+    if(!data.ok) return;
+
+    const relevant = data.result
+      .filter(u => u.message && u.message.chat && u.message.chat.id === CONFIG.OWNER_CHAT_ID)
+      .filter(u => !seenUpdateIds.has(u.update_id))
+      .sort((a,b) => a.message.date - b.message.date);
+
+    relevant.forEach(u => {
+      seenUpdateIds.add(u.update_id);
+      const msg = u.message;
+      const isOwnerReply = msg.from && msg.from.id === CONFIG.OWNER_CHAT_ID && !msg.from.is_bot;
+      if(isOwnerReply){
+        addBubble({side:'in', text: msg.text || '[fayl / media]', tag:'Qo\'llab-quvvatlash', time: fmtTime(msg.date)});
+      }
+      // Bot orqali yuborilgan (visitor) xabarlarni qayta chizmaymiz —
+      // ular allaqachon "out" sifatida optimistik qo'shilgan bo'ladi.
+    });
+
+    statusLine.textContent = '● onlayn — javob kuting';
+    statusLine.classList.add('live');
+  }catch(e){
+    statusLine.textContent = '● ulanishda xatolik, qayta urinilmoqda...';
+    statusLine.classList.remove('live');
+  }
+}
+setInterval(poll, CONFIG.POLL_INTERVAL_MS);
+poll();
+
+/* =========================================================
+   TELEGRAM LOGIN WIDGET
+   Ishlashi uchun BotFather'da shu domenni tasdiqlash shart:
+   @BotFather -> /setdomain -> https://username.github.io
+   ========================================================= */
+async function initLoginWidget(){
+  try{
+    const meRes = await fetch(`${API}/getMe`);
+    const me = await meRes.json();
+    if(!me.ok) return;
+    const botUsername = me.result.username;
+
+    const script = document.createElement('script');
+    script.src = 'https://telegram.org/js/telegram-widget.js?22';
+    script.setAttribute('data-telegram-login', botUsername);
+    script.setAttribute('data-size', 'medium');
+    script.setAttribute('data-radius', '10');
+    script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+    script.setAttribute('data-request-access', 'write');
+    document.getElementById('tg-login-wrap').appendChild(script);
+  }catch(e){ /* login widget ixtiyoriy, xatolik chatga ta'sir qilmaydi */ }
+}
+window.onTelegramAuth = function(user){
+  guestName = [user.first_name, user.last_name].filter(Boolean).join(' ') || user.username || 'Telegram foydalanuvchi';
+  localStorage.setItem('tglive_name', guestName);
+  avatarInitial.textContent = guestName[0].toUpperCase();
+  document.getElementById('tg-login-wrap').innerHTML =
+    `<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)">
+       ${user.photo_url ? `<img src="${user.photo_url}" style="width:28px;height:28px;border-radius:50%;">` : ''}
+       <span>${escapeHtml(guestName)}</span>
+     </div>`;
+};
+initLoginWidget();
+</script>
+</body>
+</html>
